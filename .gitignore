@@ -1,0 +1,23 @@
+node_modules/
+dist/
+
+# secrets — never commit
+.env
+.env.local
+.env.*.local
+
+# Zodiac SDK cache (Phase 2+)
+.zodiac/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# test coverage
+coverage/
