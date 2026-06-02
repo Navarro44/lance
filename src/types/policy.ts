@@ -32,6 +32,7 @@ export const ReasonCodeSchema = z.enum([
   "MANDATE_ID_MISMATCH",
   "ZERO_AMOUNT",
   "MALFORMED_PROPOSAL",
+  "PROPOSAL_ALREADY_PROCESSED",
 
   // ESCALATE codes
   "MANDATE_NOT_FOUND",

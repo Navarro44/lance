@@ -31,17 +31,21 @@ send funds to any non-whitelisted address. Never weaken this, and flag to me if 
 
 ## Architecture — the six components
 
-1. **Mandate** — EIP-712 signed object (whitelist, per-tx cap, per-period cap, allowed token =
-   USDC, expiry). The cryptographic capture of human intent.
+1. **Mandate** — EIP-712 signed object (whitelist, per-tx cap, per-period cap, explicit period
+   window [rolling vs fixed-calendar + duration + anchor], allowed token = USDC, expiry). The
+   cryptographic capture of human intent.
 2. **AI agent** — LLM; ingests a request, emits a schema-validated `PaymentProposal`. No keys,
    no chain access.
-3. **Policy engine** — pure deterministic `(proposal, mandate) => PolicyDecision`
-   (approve | reject | escalate), always with a machine-readable reason. No side effects.
+3. **Policy engine** — pure deterministic `(proposal, mandate, periodSpendSoFar) => PolicyDecision`
+   (approve | reject | escalate), always with a machine-readable reason; returns the new running
+   period total. Stateless — caller owns period spend, engine validates against it. No side effects.
 4. **On-chain guardrail** — Safe + Zodiac Roles on Base Sepolia. Scopes the executor to USDC
    transfers, whitelisted destinations only, within caps. Owner multisig = kill switch.
 5. **Escalation path** — anything outside the mandate surfaces for human approval.
 6. **Audit layer** — hash-chained, tamper-evident log binding
-   proposal → rationale → mandate → verdict → tx hash.
+   proposal → rationale → mandate → verdict → tx hash. Also the source of truth for period
+   spend: the caller derives `periodSpendSoFar` by summing prior in-window approvals from the
+   log before each policy call.
 
 ## The four core types (the spine)
 
@@ -59,7 +63,10 @@ runtime validation (zod). Everything plugs into these; change them deliberately,
 
 - Language: TypeScript (strict).
 - Chain: Base Sepolia via viem. Token: test USDC.
-- Custody/enforcement: Safe (protocol-kit) + Zodiac Roles Modifier.
+- Custody/enforcement: Safe (protocol-kit) + Zodiac Roles Modifier. Use `zodiac-roles-sdk`
+  (self-contained, no cloud/API-key dependency) — NOT `@zodiac-os/sdk`. Rationale: no external
+  credential in the safety-critical path; reproducible for anyone cloning the repo. See
+  docs/adr/0001. Verify the current version cleanly supports the needed scoping at Phase 2.
 - Validation: zod. Tests: Vitest.
 - Secrets in `.env` (gitignored); keep `.env.example` current.
 
@@ -77,29 +84,23 @@ src/ui       demo interface (added Phase 5)
 
 ## Commands
 
+<!-- Fill these in once Phase 0 sets up the project, then keep them accurate. -->
+
 ```bash
 # install
-npm install
+# <pkg-manager> install
 
-# build (tsc → dist/)
-npm run build
+# build
+# <pkg-manager> run build
 
 # test  (the adversarial policy suite is the centerpiece — keep it green)
-npm test
+# <pkg-manager> run test
 
-# watch mode
-npm run test:watch
+# lint / format
+# <pkg-manager> run lint
 
-# lint / format check
-npm run lint
-npm run format:check
-
-# fix lint + format in place
-npm run lint:fix
-npm run format
-
-# verify Base Sepolia connection + read test USDC
-npm run check-connection
+# verify Base Sepolia connection
+# <pkg-manager> run <connection-check-script>
 ```
 
 ## Conventions

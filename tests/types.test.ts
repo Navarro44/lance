@@ -48,8 +48,34 @@ describe("MandateSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects a mandate with a negative period", () => {
-    const result = MandateSchema.safeParse({ ...mandateFixture, periodSeconds: -1 });
+  it("rejects a mandate with a negative period duration", () => {
+    const result = MandateSchema.safeParse({
+      ...mandateFixture,
+      period: { windowType: "rolling", durationSeconds: -1 },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects a mandate with a missing period field", () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { period: _p, ...withoutPeriod } = mandateFixture;
+    const result = MandateSchema.safeParse(withoutPeriod);
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts a fixed-window mandate with anchorTimestamp", () => {
+    const result = MandateSchema.safeParse({
+      ...mandateFixture,
+      period: { windowType: "fixed", durationSeconds: 86400, anchorTimestamp: 1748390400 },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects a fixed-window mandate missing anchorTimestamp", () => {
+    const result = MandateSchema.safeParse({
+      ...mandateFixture,
+      period: { windowType: "fixed", durationSeconds: 86400 },
+    });
     expect(result.success).toBe(false);
   });
 

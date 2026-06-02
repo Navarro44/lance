@@ -40,7 +40,7 @@ export const mandateFixture: Mandate = {
   token: TEST_USDC,
   perTxCap: "500000000", // 500 USDC (6 decimals)
   perPeriodCap: "5000000000", // 5000 USDC per period
-  periodSeconds: 86400, // 1 day
+  period: { windowType: "rolling", durationSeconds: 86400 }, // 1-day rolling window
   expiresAt: EXPIRES_AT,
   createdAt: CREATED_AT,
   chainId: BASE_SEPOLIA_CHAIN_ID,
@@ -51,6 +51,17 @@ export const expiredMandateFixture: Mandate = {
   ...mandateFixture,
   mandateId: "a1b2c3d4-0001-0001-0001-000000000002",
   expiresAt: 1700000000, // 2023-11-14 — safely in the past
+};
+
+/** A mandate with a fixed calendar window — used for period-boundary tests. */
+export const fixedWindowMandateFixture: Mandate = {
+  ...mandateFixture,
+  mandateId: "a1b2c3d4-0001-0001-0001-000000000003",
+  period: {
+    windowType: "fixed",
+    durationSeconds: 86400, // 1-day fixed windows
+    anchorTimestamp: CREATED_AT, // windows start from CREATED_AT
+  },
 };
 
 // ─── PaymentProposal fixtures ─────────────────────────────────────────────────

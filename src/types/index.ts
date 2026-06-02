@@ -1,5 +1,5 @@
-export { zAddress, zHex, zTokenAmount, MandateSchema } from "./mandate.js";
-export type { Mandate } from "./mandate.js";
+export { zAddress, zHex, zTokenAmount, MandatePeriodSchema, MandateSchema } from "./mandate.js";
+export type { Mandate, MandatePeriod } from "./mandate.js";
 
 export { PaymentProposalSchema } from "./proposal.js";
 export type { PaymentProposal } from "./proposal.js";
@@ -19,6 +19,7 @@ export {
   SIGNER_ADDRESS,
   mandateFixture,
   expiredMandateFixture,
+  fixedWindowMandateFixture,
   proposalFixture,
   rogueProposalFixture,
   overCapProposalFixture,

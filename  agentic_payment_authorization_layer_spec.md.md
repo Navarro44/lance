@@ -45,15 +45,18 @@ contract layer, not by the agent behaving.
 
 1. **Mandate** — an EIP-712 signed object created once by the human / multisig.
    Fields: allowed counterparties (whitelist), per-transaction cap, per-period cap,
-   allowed token (USDC), expiry. The cryptographic capture of human intent.
+   **explicit period definition** (window type — rolling vs fixed-calendar — plus duration and
+   anchor timestamp, so "per-period" is unambiguous), allowed token (USDC), expiry.
+   The cryptographic capture of human intent.
 
 2. **AI agent** — the LLM. Ingests a payment request, reasons about whether it's legitimate
    and should go now, emits a schema-validated `PaymentProposal`. **Never holds a key.
    Never touches the chain.**
 
-3. **Policy engine** — pure deterministic code. `(proposal, mandate) → decision`
-   (approve / reject / escalate). This is the differentiator and it's pure logic — fast to
-   iterate, heavily tested.
+3. **Policy engine** — pure deterministic code. `(proposal, mandate, periodSpendSoFar) → decision`
+   (approve / reject / escalate), returning the new running period total on the decision. The
+   engine is stateless: the caller passes in current period spend and the engine validates
+   against it. This is the differentiator and it's pure logic — fast to iterate, heavily tested.
 
 4. **On-chain guardrail** — Safe + Zodiac Roles on Base. Scopes the executor key to USDC
    transfers, to whitelisted destinations only, within caps — enforced on-chain, independent
@@ -64,7 +67,11 @@ contract layer, not by the agent behaving.
    execution.
 
 6. **Audit layer** — a hash-chained, tamper-evident log binding
-   proposal → rationale → mandate → policy verdict → on-chain tx hash.
+   proposal → rationale → mandate → policy verdict → on-chain tx hash. **It is also the source
+   of truth for period spend:** the caller derives `periodSpendSoFar` by summing prior approved
+   payments in the current window from the audit log before each policy call — so cap
+   enforcement and accountability read from the same tamper-evident data, with no second mutable
+   place for the running total to drift.
 
 ---
 
@@ -92,10 +99,17 @@ contract layer, not by the agent behaving.
   surface, and the chosen signer SDK. Do not trust stale snapshots — these drift.
 
 ### Phase 1 — Deterministic core (no AI yet)
-- EIP-712 mandate signing + verification.
-- Policy engine: `(proposal, mandate) → verdict`.
+- EIP-712 mandate signing + verification. The `Mandate` must define the period window
+  explicitly (rolling vs fixed-calendar, duration, anchor); the `PaymentProposal` must carry a
+  timestamp so the engine can decide which prior spend counts toward the period cap.
+- Policy engine: `(proposal, mandate, periodSpendSoFar) → verdict` (+ new running total).
+  Pure/stateless — caller owns the period total, engine validates against it.
+- Period spend is derived from the audit log, not held in a mutable variable (the audit layer
+  arrives in Phase 3; until then, derive from an in-memory list of prior approvals so the
+  contract is right from the start).
 - Heavy unit + adversarial tests: proposals just over the cap, expired mandates,
-  non-whitelisted payees, replay attempts.
+  non-whitelisted payees, replay attempts, per-period cap exhausted across multiple proposals,
+  proposals at the period-window boundary.
 - Target a resume-grade claim: **"0 unauthorized approvals across N adversarial cases."**
 
 ### Phase 2 — On-chain guardrail (shadow mode first)

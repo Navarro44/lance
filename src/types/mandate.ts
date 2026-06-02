@@ -28,6 +28,34 @@ export const zTokenAmount = z
   .string()
   .regex(/^\d+$/, "Amount must be a non-negative integer string (token base units)");
 
+// ─── Period window ────────────────────────────────────────────────────────────
+
+/**
+ * Explicit period window definition — makes "per-period cap" unambiguous.
+ *
+ * rolling — the window is always the last `durationSeconds` from the proposal
+ *           timestamp. No anchor needed.
+ *
+ * fixed   — the window is a fixed calendar slot: window 0 = [anchor, anchor +
+ *           durationSeconds), window 1 = [anchor + duration, anchor + 2×duration), …
+ *           The caller finds which slot the proposal falls in and sums prior spend
+ *           in that slot.
+ */
+export const MandatePeriodSchema = z.discriminatedUnion("windowType", [
+  z.object({
+    windowType: z.literal("rolling"),
+    durationSeconds: z.number().int().positive(),
+  }),
+  z.object({
+    windowType: z.literal("fixed"),
+    durationSeconds: z.number().int().positive(),
+    /** Unix timestamp of the start of the first window. */
+    anchorTimestamp: z.number().int().nonnegative(),
+  }),
+]);
+
+export type MandatePeriod = z.infer<typeof MandatePeriodSchema>;
+
 // ─── Mandate ─────────────────────────────────────────────────────────────────
 
 /**
@@ -46,14 +74,14 @@ export const MandateSchema = z.object({
 
   /**
    * EIP-712 signature over the mandate body by signerAddress.
-   * Empty string ("0x") until signing is complete (Phase 1).
+   * "0x" until the mandate is signed (use signMandate from src/mandate).
    */
   signature: zHex,
 
   /**
    * Exhaustive list of approved payee addresses.
    * The executor is scoped on-chain to the same set (Zodiac Roles).
-   * An empty whitelist makes every proposal escalate immediately.
+   * An empty whitelist makes every proposal reject immediately.
    */
   whitelist: z.array(zAddress).min(1, "Mandate must have at least one approved payee"),
 
@@ -70,20 +98,22 @@ export const MandateSchema = z.object({
   perTxCap: zTokenAmount,
 
   /**
-   * Maximum aggregate value of all approved payments within one period,
-   * in token base units. Policy engine tracks running spend.
+   * Maximum aggregate value of all approved payments within one period window,
+   * in token base units. Caller derives period spend from the audit log and
+   * passes it into checkPolicy; the engine validates against it.
    */
   perPeriodCap: zTokenAmount,
 
   /**
-   * Length of the rolling spending period in seconds.
-   * e.g. 86400 = 1 day, 2592000 = 30 days.
+   * Explicit period window definition.
+   * The period type (rolling vs fixed-calendar), duration, and anchor are all
+   * part of the signed mandate so they cannot be tampered with post-signing.
    */
-  periodSeconds: z.number().int().positive(),
+  period: MandatePeriodSchema,
 
   /**
-   * Unix timestamp after which this mandate is invalid and all proposals
-   * must escalate.
+   * Unix timestamp after which this mandate is invalid.
+   * Policy engine rejects proposals with timestamp >= expiresAt.
    */
   expiresAt: z.number().int().positive(),
 
