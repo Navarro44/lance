@@ -16,7 +16,6 @@ const TEST_PRIVATE_KEY =
 const TEST_SIGNER_ADDRESS = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
 /** Mandate with our test signer address (unsigned — explicitly no signature field). */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const { signature: _sig, ...mandateBody } = mandateFixture;
 const unsignedMandate: Omit<Mandate, "signature"> = {
   ...mandateBody,

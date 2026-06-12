@@ -84,23 +84,33 @@ src/ui       demo interface (added Phase 5)
 
 ## Commands
 
-<!-- Fill these in once Phase 0 sets up the project, then keep them accurate. -->
-
 ```bash
 # install
-# <pkg-manager> install
+pnpm install
 
 # build
-# <pkg-manager> run build
+pnpm run build
 
-# test  (the adversarial policy suite is the centerpiece — keep it green)
-# <pkg-manager> run test
+# test  (adversarial policy suite + on-chain guardrail tests — keep them green)
+pnpm run test
+
+# on-chain guardrail tests only (requires deployment.json — run deploy first)
+pnpm run test:chain
 
 # lint / format
-# <pkg-manager> run lint
+pnpm run lint
+pnpm run format
 
 # verify Base Sepolia connection
-# <pkg-manager> run <connection-check-script>
+pnpm run check-connection
+
+# deploy Safe + Zodiac Roles Modifier on Base Sepolia
+# prereqs: SIGNER_PRIVATE_KEY, EXECUTOR_PRIVATE_KEY, WHITELIST, PER_TX_CAP_BASE_UNITS in .env
+pnpm run deploy
+
+# run a live end-to-end test payment (1 base unit USDC)
+# prereqs: deployment.json from pnpm deploy, Safe must hold test USDC
+pnpm run live-payment
 ```
 
 ## Conventions

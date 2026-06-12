@@ -57,7 +57,6 @@ describe("MandateSchema", () => {
   });
 
   it("rejects a mandate with a missing period field", () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { period: _p, ...withoutPeriod } = mandateFixture;
     const result = MandateSchema.safeParse(withoutPeriod);
     expect(result.success).toBe(false);
@@ -80,7 +79,6 @@ describe("MandateSchema", () => {
   });
 
   it("rejects a mandate missing required fields", () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { mandateId: _id, ...withoutId } = mandateFixture;
     const result = MandateSchema.safeParse(withoutId);
     expect(result.success).toBe(false);
