@@ -21,3 +21,5 @@ Thumbs.db
 
 # test coverage
 coverage/
+CLAUDE.md
+agentic_payment_authorization_layer_spec.md
