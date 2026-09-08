@@ -1,5 +1,5 @@
 /**
- * live-payment.ts — Execute a single tiny USDC payment end-to-end on Base Sepolia.
+ * live-payment.ts — Execute a single tiny USDC payment end-to-end on Ethereum Sepolia.
  *
  * This script is the final acceptance test for Phase 2. It:
  *   1. Loads deployment.json (produced by `pnpm deploy`)
@@ -14,7 +14,7 @@
  * Usage:  tsx scripts/live-payment.ts
  *
  * The executor account must have:
- *   - A small amount of Base Sepolia ETH for gas
+ *   - A small amount of Sepolia ETH for gas
  *   - The Safe must hold at least 1 base unit of test USDC
  *
  * TESTNET ONLY. Never use with real funds.
@@ -26,10 +26,11 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { randomUUID } from "crypto";
 import type { Address, Hex } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
 
 import { createChainAdapter } from "../src/chain/adapter.js";
 import { createNullAuditSeam } from "../src/chain/audit-seam.js";
-import { CHAIN_ID, USDC_ADDRESS } from "../src/chain/constants.js";
+import { CHAIN_ID, DEFAULT_RPC_URL, USDC_ADDRESS } from "../src/chain/constants.js";
 import { checkPolicy } from "../src/policy/index.js";
 import { signMandate, verifyMandate } from "../src/mandate/index.js";
 import type { Mandate, PaymentProposal } from "../src/types/index.js";
@@ -61,7 +62,7 @@ const deployment = JSON.parse(readFileSync(DEPLOYMENT_PATH, "utf-8")) as Deploym
 
 const EXECUTOR_PRIVATE_KEY = process.env["EXECUTOR_PRIVATE_KEY"] as Hex | undefined;
 const SIGNER_PRIVATE_KEY = process.env["SIGNER_PRIVATE_KEY"] as Hex | undefined;
-const RPC_URL = process.env["RPC_URL"] ?? "https://sepolia.base.org";
+const RPC_URL = process.env["RPC_URL"] ?? DEFAULT_RPC_URL;
 
 if (!EXECUTOR_PRIVATE_KEY) {
   console.error("ERROR: EXECUTOR_PRIVATE_KEY not set in .env");
@@ -76,7 +77,7 @@ if (!SIGNER_PRIVATE_KEY) {
 
 async function main() {
   console.log("\n═══════════════════════════════════════════════════════════");
-  console.log(" Lance — Phase 2 live payment (Base Sepolia)");
+  console.log(" Lance — Phase 2 live payment (Ethereum Sepolia)");
   console.log("═══════════════════════════════════════════════════════════\n");
 
   const payee = deployment.whitelist[0];
@@ -91,7 +92,6 @@ async function main() {
 
   // ── 1. Build and sign a mandate ────────────────────────────────────────────
   console.log("Step 1: Building mandate...");
-  const { privateKeyToAccount } = await import("viem");
   const signerAccount = privateKeyToAccount(SIGNER_PRIVATE_KEY as Hex);
 
   const unsignedMandate: Omit<Mandate, "signature"> = {
@@ -165,7 +165,7 @@ async function main() {
   }
 
   console.log("\n═══════════════════════════════════════════════════════════");
-  console.log(" ✓ Phase 2 acceptance: live payment confirmed on Base Sepolia");
+  console.log(" ✓ Phase 2 acceptance: live payment confirmed on Ethereum Sepolia");
   console.log("  tx hash:", result.txHash);
   console.log("═══════════════════════════════════════════════════════════\n");
 }

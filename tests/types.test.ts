@@ -14,7 +14,7 @@ import {
   firstAuditRecordFixture,
   secondAuditRecordFixture,
   TEST_USDC,
-  BASE_SEPOLIA_CHAIN_ID,
+  TEST_CHAIN_ID,
 } from "../src/types/index.js";
 
 // ─── Mandate ──────────────────────────────────────────────────────────────────
@@ -88,7 +88,7 @@ describe("MandateSchema", () => {
     const result = MandateSchema.safeParse(mandateFixture);
     if (!result.success) throw new Error("Should have parsed");
     expect(result.data.token).toBe(TEST_USDC);
-    expect(result.data.chainId).toBe(BASE_SEPOLIA_CHAIN_ID);
+    expect(result.data.chainId).toBe(TEST_CHAIN_ID);
   });
 });
 

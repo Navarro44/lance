@@ -8,6 +8,12 @@ importers:
 
   .:
     dependencies:
+      '@gnosis-guild/zodiac':
+        specifier: 5.0.1
+        version: 5.0.1
+      '@gnosis-guild/zodiac-core':
+        specifier: 4.3.0
+        version: 4.3.0
       '@safe-global/protocol-kit':
         specifier: ^7.0.0
         version: 7.2.0(typescript@5.9.3)(zod@3.25.76)
@@ -403,6 +409,13 @@ packages:
   '@eslint/plugin-kit@0.4.1':
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@gnosis-guild/zodiac-core@4.3.0':
+    resolution: {integrity: sha512-ZDhJopoC6v/4RL5/WNHK9l/fy4jEdltoVWftIAshDurI4B8PdsDxwvOmeDDuU7oX8xmxhaUcQUVpVmB0SWycpw==}
+    engines: {node: '>=24.0.0'}
+
+  '@gnosis-guild/zodiac@5.0.1':
+    resolution: {integrity: sha512-+fFXg+cSDFe6yQSKvyK7ivjEDkHXXwwcsh9g178u6OOM01gSII076ClKBXfp4ZX+JnQC5AP5gt6vyl/7RnRDkQ==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -812,6 +825,9 @@ packages:
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
 
+  cookiejar@2.1.4:
+    resolution: {integrity: sha512-LDx6oHrK+PhzLKJU9j5S7/Y3jM/mUHvD/DeI1WQmJn652iPC5Y4TBzC9l+5OMOXlyTTA+SmVUPm0HQUwpD5Jqw==}
+
   cross-fetch@3.2.0:
     resolution: {integrity: sha512-Q+xVJLoGOeIMXZmbUK4HYk+69cQH6LudR0Vu/pRm2YlU/hDV9CiS0gKUMaWY5f2NeUH9C1nV3bsTlCo0FsTV1Q==}
 
@@ -837,6 +853,10 @@ packages:
 
   dotenv@16.6.1:
     resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
+    engines: {node: '>=12'}
+
+  dotenv@17.4.2:
+    resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
     engines: {node: '>=12'}
 
   es-module-lexer@1.7.0:
@@ -881,6 +901,7 @@ packages:
   eslint@9.39.4:
     resolution: {integrity: sha512-XoMjdBOwe/esVgEvLmNsD3IRHkm7fbKIUGvrleloJXUZgDHig2IPWNniv+GwjyJXzuNqVjlr5+4yVUZjycJwfQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
@@ -911,12 +932,26 @@ packages:
     resolution: {integrity: sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==}
     engines: {node: '>=0.10.0'}
 
+  eth-provider@0.13.7:
+    resolution: {integrity: sha512-D07HcKBQ0+liERDbkwpex03Y5D7agOMBv8NMkGu0obmD+vHzP9q8jI/tkZMfYAhbfXwpudEgXKiJODXH5UQu7g==}
+
+  ethereum-provider@0.7.7:
+    resolution: {integrity: sha512-ulbjKgu1p2IqtZqNTNfzXysvFJrMR3oTmWEEX3DnoEae7WLd4MkY4u82kvXhxA2C171rK8IVlcodENX7TXvHTA==}
+
   ethers@6.16.0:
     resolution: {integrity: sha512-U1wulmetNymijEhpSEQ7Ct/P/Jw9/e7R1j5XIbPRydgV2DjLVMsULDlNksq3RQnFgKoLlZf88ijYtWEXcPa07A==}
     engines: {node: '>=14.0.0'}
 
+  ethers@6.17.0:
+    resolution: {integrity: sha512-BpyrpIPJ3ydEVow8zGaz1DuPS7YU8DcWxuBnY9a0UA/lvAPwrMr+EPXsfrul628SRaekPNeIM4UFh/91GWZang==}
+    engines: {node: '>=14.0.0'}
+
   eventemitter3@5.0.1:
     resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
+
+  events@3.3.0:
+    resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
+    engines: {node: '>=0.8.x'}
 
   expect-type@1.3.0:
     resolution: {integrity: sha512-knvyeauYhqjOYvQ66MznSMs83wmHrCycNEN6Ao+2AeYEfxUIkuiVxdEa1qlGEPK+We3n0THiDciYSsCcgW/DoA==}
@@ -974,6 +1009,9 @@ packages:
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
     engines: {node: '>=8'}
+
+  http-https@1.0.0:
+    resolution: {integrity: sha512-o0PWwVCSp3O0wS6FvNr6xfBCHgt0m1tvPLFOCc2iFDKTRAXhB7m8klDf7ErowFH8POa6dVdGatKU5I1YYwzUyg==}
 
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
@@ -1075,6 +1113,9 @@ packages:
     peerDependenciesMeta:
       encoding:
         optional: true
+
+  oboe@2.1.5:
+    resolution: {integrity: sha512-zRFWiF+FoicxEs3jNI/WYUrVEgA7DeET/InK0XQuudGHRg8iIob3cNPrJTKaz4004uaA9Pbe+Dwa8iluhjLZWA==}
 
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
@@ -1249,6 +1290,11 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
+  uuid@9.0.0:
+    resolution: {integrity: sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+    hasBin: true
+
   viem@2.52.0:
     resolution: {integrity: sha512-py2QPYe9e1f4DmPJCsXF7zHmyZ0PkJrBxdQZ5dvNXvzy3UzWkUn7dNfC0TMeNm6Qv1tKw3b6qXXExpx6L0oMbw==}
     peerDependencies:
@@ -1361,6 +1407,33 @@ packages:
         optional: true
       utf-8-validate:
         optional: true
+
+  ws@8.21.0:
+    resolution: {integrity: sha512-Vsp28b7DRcimFQvrqu2Wek3z1iYxDCWqHYB8Qsnk/S4RfaCQzPGPyBNuVjJV3cd6UiKtUtp6sNM77gWvzcCH+g==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
+  ws@8.9.0:
+    resolution: {integrity: sha512-Ja7nszREasGaYUYCI2k4lCKIRTt+y7XuqVoHR44YpI49TtryyqbqvDMn5eqfW7e6HzTukDRIsXqzVHScqRcafg==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: ^5.0.2
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
+  xhr2-cookies@1.1.0:
+    resolution: {integrity: sha512-hjXUA6q+jl/bd8ADHcVfFsSPIf+tyLIjuO9TwJC9WI6JP2zKcS7C+p56I9kCLLsaCiNT035iYvEUUzdEFj/8+g==}
 
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
@@ -1600,6 +1673,24 @@ snapshots:
     dependencies:
       '@eslint/core': 0.17.0
       levn: 0.4.1
+
+  '@gnosis-guild/zodiac-core@4.3.0':
+    dependencies:
+      ethers: 6.16.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  '@gnosis-guild/zodiac@5.0.1':
+    dependencies:
+      '@gnosis-guild/zodiac-core': 4.3.0
+      dotenv: 17.4.2
+      eth-provider: 0.13.7
+      ethers: 6.17.0
+      semver: 7.8.1
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   '@humanfs/core@0.19.2':
     dependencies:
@@ -1991,6 +2082,8 @@ snapshots:
 
   concat-map@0.0.1: {}
 
+  cookiejar@2.1.4: {}
+
   cross-fetch@3.2.0:
     dependencies:
       node-fetch: 2.7.0
@@ -2012,6 +2105,8 @@ snapshots:
   deep-is@0.1.4: {}
 
   dotenv@16.6.1: {}
+
+  dotenv@17.4.2: {}
 
   es-module-lexer@1.7.0: {}
 
@@ -2148,6 +2243,22 @@ snapshots:
 
   esutils@2.0.3: {}
 
+  eth-provider@0.13.7:
+    dependencies:
+      ethereum-provider: 0.7.7
+      events: 3.3.0
+      oboe: 2.1.5
+      uuid: 9.0.0
+      ws: 8.9.0
+      xhr2-cookies: 1.1.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  ethereum-provider@0.7.7:
+    dependencies:
+      events: 3.3.0
+
   ethers@6.16.0:
     dependencies:
       '@adraffy/ens-normalize': 1.10.1
@@ -2161,7 +2272,22 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
+  ethers@6.17.0:
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.1
+      '@noble/curves': 1.2.0
+      '@noble/hashes': 1.3.2
+      '@types/node': 22.7.5
+      aes-js: 4.0.0-beta.5
+      tslib: 2.7.0
+      ws: 8.21.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   eventemitter3@5.0.1: {}
+
+  events@3.3.0: {}
 
   expect-type@1.3.0: {}
 
@@ -2203,6 +2329,8 @@ snapshots:
   globals@14.0.0: {}
 
   has-flag@4.0.0: {}
+
+  http-https@1.0.0: {}
 
   ignore@5.3.2: {}
 
@@ -2283,6 +2411,10 @@ snapshots:
   node-fetch@2.7.0:
     dependencies:
       whatwg-url: 5.0.0
+
+  oboe@2.1.5:
+    dependencies:
+      http-https: 1.0.0
 
   optionator@0.9.4:
     dependencies:
@@ -2453,6 +2585,8 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
+  uuid@9.0.0: {}
+
   viem@2.52.0(typescript@5.9.3)(zod@3.25.76):
     dependencies:
       '@noble/curves': 1.9.1
@@ -2553,6 +2687,14 @@ snapshots:
   ws@8.17.1: {}
 
   ws@8.20.1: {}
+
+  ws@8.21.0: {}
+
+  ws@8.9.0: {}
+
+  xhr2-cookies@1.1.0:
+    dependencies:
+      cookiejar: 2.1.4
 
   yocto-queue@0.1.0: {}
 

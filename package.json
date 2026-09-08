@@ -17,6 +17,8 @@
     "live-payment": "tsx scripts/live-payment.ts"
   },
   "dependencies": {
+    "@gnosis-guild/zodiac": "5.0.1",
+    "@gnosis-guild/zodiac-core": "4.3.0",
     "@safe-global/protocol-kit": "^7.0.0",
     "dotenv": "^16.4.0",
     "viem": "^2.51.0",

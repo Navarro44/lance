@@ -1,14 +1,23 @@
-import { baseSepolia } from "viem/chains";
+import { sepolia } from "viem/chains";
 import type { Address, Hex } from "viem";
 
-export const CHAIN = baseSepolia;
-export const CHAIN_ID = baseSepolia.id; // 84532
+export const CHAIN = sepolia;
+export const CHAIN_ID = sepolia.id; // 11155111
 
 /**
- * Circle's official USDC deployment on Base Sepolia.
- * Source: https://developers.circle.com/stablecoins/docs/usdc-on-test-networks
+ * Default public RPC. Every module reads the chain and this default from here,
+ * so the target network cannot drift between the adapter, the scripts and the
+ * tests. Override with RPC_URL in .env.
  */
-export const USDC_ADDRESS: Address = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
+export const DEFAULT_RPC_URL = "https://ethereum-sepolia-rpc.publicnode.com";
+
+/**
+ * Circle's official USDC deployment on Ethereum Sepolia (chainId 11155111).
+ * Verified against Circle's contract-address docs and on-chain: name "USDC",
+ * symbol "USDC", decimals 6.
+ * Source: https://developers.circle.com/stablecoins/usdc-contract-addresses
+ */
+export const USDC_ADDRESS: Address = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
 
 /** USDC has 6 decimal places. */
 export const USDC_DECIMALS = 6;

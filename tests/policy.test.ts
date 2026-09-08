@@ -301,7 +301,7 @@ describe("checkPolicy — adversarial: structural mismatches", () => {
   });
 
   it("[ADV-16] rejects when proposal.chainId ≠ mandate.chainId", () => {
-    const name = "ADV-16: chainId mismatch (proposal on mainnet, mandate on Base Sepolia)";
+    const name = "ADV-16: chainId mismatch (proposal on mainnet, mandate on Sepolia)";
     const d = checkPolicy(makeProposal({ chainId: 1 }), mandate, "0");
     trackAdversarial(name, d.verdict);
     expect(d.verdict).toBe("REJECT");

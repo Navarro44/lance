@@ -1,9 +1,10 @@
 /**
  * deploy.ts — Deploy and configure the on-chain guardrail stack.
  *
- * Deploys (Base Sepolia only):
+ * Deploys (Ethereum Sepolia testnet only):
  *   1. A new Safe (1-of-1, owner = signer key)
- *   2. A Zodiac Roles Modifier (owner/avatar/target = Safe address)
+ *   2. A Zodiac Roles Modifier — minimal EIP-1167 proxy to the canonical
+ *      mastercopy (owner/avatar/target = Safe address), via ModuleProxyFactory
  *   3. Enables the Roles Modifier as a Safe module
  *   4. Scopes the EXECUTOR role:
  *      - Assigns role to executor EOA
@@ -29,20 +30,21 @@ import {
   type Hash,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { baseSepolia } from "viem/chains";
 
-import { CHAIN_ID, USDC_ADDRESS } from "../src/chain/constants.js";
+import { CHAIN, CHAIN_ID, DEFAULT_RPC_URL, USDC_ADDRESS } from "../src/chain/constants.js";
 import {
   encodeAssignRoles,
+  encodeRolesProxyDeployment,
   encodeSetDefaultRole,
   encodeScopeTarget,
   encodeScopeTransfer,
-  getRolesBytecode,
+  resolveRolesMastercopy,
+  verifyRolesMastercopy,
 } from "../src/chain/roles.js";
 
 // ─── config ───────────────────────────────────────────────────────────────────
 
-const RPC_URL = process.env["RPC_URL"] ?? "https://sepolia.base.org";
+const RPC_URL = process.env["RPC_URL"] ?? DEFAULT_RPC_URL;
 const SIGNER_PRIVATE_KEY = process.env["SIGNER_PRIVATE_KEY"] as Hex | undefined;
 const EXECUTOR_PRIVATE_KEY = process.env["EXECUTOR_PRIVATE_KEY"] as Hex | undefined;
 
@@ -57,6 +59,14 @@ const WHITELIST: Address[] = (process.env["WHITELIST"] ?? "")
  * Default: 1 USDC = 1_000_000 base units.
  */
 const PER_TX_CAP_BASE_UNITS = BigInt(process.env["PER_TX_CAP_BASE_UNITS"] ?? "1000000");
+
+/**
+ * Optional: reuse an already-deployed Roles proxy instead of deploying a new one.
+ * Set this to resume a deployment that was interrupted (e.g. a transient RPC
+ * failure) without paying for a second proxy or leaving a stale, unconfigured
+ * module enabled on the Safe.
+ */
+const EXISTING_ROLES_MODIFIER = process.env["ROLES_MODIFIER_ADDRESS"] as Address | undefined;
 
 // ─── validation ───────────────────────────────────────────────────────────────
 
@@ -87,7 +97,7 @@ async function waitForTx(
 
 async function main() {
   console.log("\n═══════════════════════════════════════════════════════════");
-  console.log(" Lance — Phase 2 deployment (Base Sepolia)");
+  console.log(` Lance — Phase 2 deployment (${CHAIN.name}, chainId ${CHAIN_ID})`);
   console.log("═══════════════════════════════════════════════════════════\n");
 
   const { signerKey, executorKey } = requireEnv();
@@ -102,12 +112,12 @@ async function main() {
   console.log("RPC             :", RPC_URL, "\n");
 
   const publicClient = createPublicClient({
-    chain: baseSepolia,
+    chain: CHAIN,
     transport: http(RPC_URL),
   });
   const walletClient = createWalletClient({
     account: signerAccount,
-    chain: baseSepolia,
+    chain: CHAIN,
     transport: http(RPC_URL),
   });
 
@@ -130,30 +140,80 @@ async function main() {
     .getCode({ address: predictedSafeAddress })
     .then((code) => code != null && code !== "0x");
 
-  // ── step 2: deploy Roles Modifier ───────────────────────────────────────────
-  console.log("\nStep 2: Deploying Roles Modifier...");
+  // ── step 2a: resolve + verify the Roles mastercopy ──────────────────────────
+  // The Roles Modifier is deployed as a minimal proxy to a canonical mastercopy,
+  // NOT from bytecode (the shipped artifact is 25,286 bytes — over the EIP-170
+  // 24,576 limit). The mastercopy address comes from the vendor registry and is
+  // verified on-chain before anything is deployed against it. See docs/adr/0002.
+  console.log("\nStep 2a: Resolving Roles mastercopy from registry...");
+  const { address: mastercopyAddress, range } = await resolveRolesMastercopy();
+  console.log("  version range :", range);
+  console.log("  mastercopy    :", mastercopyAddress, "(registry-resolved, not hardcoded)");
 
-  // Check if we already have a deployment saved (idempotent re-runs)
+  console.log(`\nStep 2b: Verifying mastercopy on-chain (${CHAIN.name})...`);
+  const verification = await verifyRolesMastercopy(publicClient, mastercopyAddress, CHAIN.name);
+  console.log("  code size     :", verification.codeSizeBytes, "bytes");
+  console.log("  codehash      :", verification.codeHash);
+  console.log("  ✓ all required Roles v2 selectors present");
+
+  // ── step 2c: deploy the Roles proxy via the Module Proxy Factory ────────────
+  // setUp(owner=Safe, avatar=Safe, target=Safe) runs atomically in the same tx.
+  console.log("\nStep 2c: Deploying Roles proxy via ModuleProxyFactory...");
   let rolesAddress: Address;
-  const rolesBytecode = getRolesBytecode();
+  let rolesTxHash: Hash | null = null;
+  let saltNonce: bigint | null = null;
+  let factoryAddress: Address;
 
-  // ABI-encode constructor args: (address _owner, address _avatar, address _target)
-  const { encodeAbiParameters, parseAbiParameters } = await import("viem");
-  const constructorArgs = encodeAbiParameters(parseAbiParameters("address, address, address"), [
-    predictedSafeAddress,
-    predictedSafeAddress,
-    predictedSafeAddress,
-  ]);
-  const deployData = (rolesBytecode + constructorArgs.slice(2)) as Hex;
+  if (EXISTING_ROLES_MODIFIER) {
+    // Resuming: adopt the existing proxy instead of deploying another.
+    const existingCode = await publicClient.getCode({ address: EXISTING_ROLES_MODIFIER });
+    if (existingCode == null || existingCode === "0x") {
+      throw new Error(
+        `ROLES_MODIFIER_ADDRESS=${EXISTING_ROLES_MODIFIER} has no code on ${CHAIN.name}. Refusing to continue.`,
+      );
+    }
+    rolesAddress = EXISTING_ROLES_MODIFIER;
+    factoryAddress = (
+      await encodeRolesProxyDeployment({
+        mastercopy: mastercopyAddress,
+        safe: predictedSafeAddress,
+        saltNonce: 0n,
+      })
+    ).to;
+    console.log(
+      "  reusing existing proxy:",
+      rolesAddress,
+      `(${(existingCode.length - 2) / 2} bytes)`,
+    );
+  } else {
+    saltNonce = BigInt(Date.now());
+    const proxyDeployment = await encodeRolesProxyDeployment({
+      mastercopy: mastercopyAddress,
+      safe: predictedSafeAddress,
+      saltNonce,
+    });
+    factoryAddress = proxyDeployment.to;
+    console.log("  factory       :", proxyDeployment.to, "(CREATE2-derived)");
+    console.log("  saltNonce     :", saltNonce.toString());
+    console.log("  predicted     :", proxyDeployment.predictedAddress);
 
-  const rolesTxHash = await walletClient.sendTransaction({ data: deployData });
-  await waitForTx(publicClient, rolesTxHash, "Roles Modifier deploy");
+    rolesTxHash = await walletClient.sendTransaction({
+      to: proxyDeployment.to,
+      data: proxyDeployment.data,
+    });
+    await waitForTx(publicClient, rolesTxHash, "Roles proxy deploy");
 
-  const rolesReceipt = await publicClient.getTransactionReceipt({ hash: rolesTxHash });
-  if (!rolesReceipt.contractAddress)
-    throw new Error("Roles Modifier deploy: no contractAddress in receipt");
-  rolesAddress = rolesReceipt.contractAddress as Address;
-  console.log("  Roles Modifier address:", rolesAddress);
+    rolesAddress = proxyDeployment.predictedAddress;
+
+    // The predicted address is only trustworthy if code actually landed there.
+    const proxyCode = await publicClient.getCode({ address: rolesAddress });
+    if (proxyCode == null || proxyCode === "0x") {
+      throw new Error(
+        `Roles proxy deploy: no code at predicted address ${rolesAddress}. Refusing to continue.`,
+      );
+    }
+    console.log("  Roles Modifier address:", rolesAddress, `(${(proxyCode.length - 2) / 2} bytes)`);
+  }
 
   // ── step 3: deploy Safe ──────────────────────────────────────────────────────
   console.log("\nStep 3: Deploying Safe...");
@@ -190,10 +250,15 @@ async function main() {
 
   // ── step 5: enable Roles Modifier as Safe module ─────────────────────────────
   console.log("\nStep 4: Enabling Roles Modifier as Safe module...");
-  const enableModuleTx = await safe.createEnableModuleTx(rolesAddress);
-  const signedEnableTx = await safe.signTransaction(enableModuleTx);
-  const enableResult = await safe.executeTransaction(signedEnableTx);
-  await waitForTx(publicClient, enableResult.hash as Hash, "enableModule");
+  const alreadyEnabled = await safe.isModuleEnabled(rolesAddress);
+  if (alreadyEnabled) {
+    console.log("  module already enabled on Safe (skipping)");
+  } else {
+    const enableModuleTx = await safe.createEnableModuleTx(rolesAddress);
+    const signedEnableTx = await safe.signTransaction(enableModuleTx);
+    const enableResult = await safe.executeTransaction(signedEnableTx);
+    await waitForTx(publicClient, enableResult.hash as Hash, "enableModule");
+  }
 
   // ── step 6: configure roles on the Roles Modifier ────────────────────────────
   console.log("\nStep 5: Configuring roles on Roles Modifier (4 Safe txs)...");
@@ -219,17 +284,25 @@ async function main() {
 
   // ── step 7: write deployment.json ─────────────────────────────────────────────
   const deployment = {
-    network: "baseSepolia",
+    network: CHAIN.name,
     chainId: CHAIN_ID,
     safeAddress,
     rolesModifierAddress: rolesAddress,
+    rolesMastercopy: {
+      address: verification.address,
+      versionRange: range,
+      codeHash: verification.codeHash,
+      codeSizeBytes: verification.codeSizeBytes,
+    },
+    moduleProxyFactory: factoryAddress,
+    proxySaltNonce: saltNonce == null ? "(reused existing proxy)" : saltNonce.toString(),
     signerAddress: signerAccount.address,
     executorAddress: executorAccount.address,
     whitelist: WHITELIST,
     perTxCapBaseUnits: PER_TX_CAP_BASE_UNITS.toString(),
     usdcAddress: USDC_ADDRESS,
     deployedAt: new Date().toISOString(),
-    rolesTxHash,
+    rolesTxHash: rolesTxHash ?? "(reused existing proxy)",
   };
 
   const __dirname = path.dirname(fileURLToPath(import.meta.url));

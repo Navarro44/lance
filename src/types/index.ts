@@ -12,7 +12,7 @@ export type { AuditRecord } from "./audit.js";
 
 export {
   TEST_USDC,
-  BASE_SEPOLIA_CHAIN_ID,
+  TEST_CHAIN_ID,
   SUPPLIER_A,
   SUPPLIER_B,
   ROGUE_ADDRESS,

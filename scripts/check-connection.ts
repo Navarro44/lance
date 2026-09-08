@@ -1,5 +1,5 @@
 /**
- * Verifies live Base Sepolia connectivity and reads the test USDC contract.
+ * Verifies live Ethereum Sepolia connectivity and reads the test USDC contract.
  * Run: npm run check-connection
  *
  * Exits 0 on success, 1 on any failure.
@@ -7,6 +7,8 @@
 
 import "dotenv/config";
 import { formatUnits } from "viem";
+
+import { DEFAULT_RPC_URL } from "../src/chain/constants.js";
 import { createClient, USDC_ADDRESS, USDC_DECIMALS, ERC20_ABI, CHAIN } from "../src/chain/index.js";
 
 const GREEN = "\x1b[32m";
@@ -20,7 +22,7 @@ const fail = (msg: string) => console.log(`${RED}✗${RESET} ${msg}`);
 const info = (label: string, value: unknown) => console.log(`  ${DIM}${label}:${RESET} ${value}`);
 
 async function main() {
-  console.log(`\n${YELLOW}── Base Sepolia connection check ──${RESET}\n`);
+  console.log(`\n${YELLOW}── Ethereum Sepolia connection check ──${RESET}\n`);
 
   const client = createClient();
 
@@ -30,11 +32,11 @@ async function main() {
   try {
     blockNumber = await client.getBlockNumber();
     ok(`Connected to ${CHAIN.name}`);
-    info("RPC URL", process.env["RPC_URL"] ?? "https://sepolia.base.org (public fallback)");
+    info("RPC URL", process.env["RPC_URL"] ?? `${DEFAULT_RPC_URL} (public fallback)`);
     info("Chain ID", CHAIN.id);
     info("Block number", blockNumber.toString());
   } catch (err) {
-    fail(`Cannot reach Base Sepolia RPC`);
+    fail(`Cannot reach Ethereum Sepolia RPC`);
     console.error(err);
     process.exit(1);
   }

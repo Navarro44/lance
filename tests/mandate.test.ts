@@ -6,7 +6,7 @@ import {
   mandateToEIP712Message,
   MANDATE_TYPES,
 } from "../src/mandate/index.js";
-import { mandateFixture, BASE_SEPOLIA_CHAIN_ID } from "../src/types/index.js";
+import { mandateFixture, TEST_CHAIN_ID } from "../src/types/index.js";
 import type { Mandate } from "../src/types/index.js";
 
 // ─── test credentials ─────────────────────────────────────────────────────────
@@ -168,6 +168,6 @@ describe("mandateToEIP712Message", () => {
 
   it("chainId in the message matches the mandate chainId", () => {
     const msg = mandateToEIP712Message(unsignedMandate);
-    expect(msg.chainId).toBe(BigInt(BASE_SEPOLIA_CHAIN_ID));
+    expect(msg.chainId).toBe(BigInt(TEST_CHAIN_ID));
   });
 });

@@ -5,11 +5,11 @@ import type { AuditRecord } from "./audit.js";
 
 // ─── shared constants ─────────────────────────────────────────────────────────
 
-/** Test USDC on Base Sepolia (Circle's official deployment). */
-export const TEST_USDC = "0x036CbD53842c5426634e7929541eC2318f3dCF7e" as const;
+/** Test USDC on Ethereum Sepolia (Circle's official deployment). */
+export const TEST_USDC = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238" as const;
 
-/** Base Sepolia chain ID. */
-export const BASE_SEPOLIA_CHAIN_ID = 84532 as const;
+/** Ethereum Sepolia chain ID. */
+export const TEST_CHAIN_ID = 11155111 as const;
 
 /** A whitelisted supplier address (fictional — testnet only). */
 export const SUPPLIER_A = "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B" as const;
@@ -43,7 +43,7 @@ export const mandateFixture: Mandate = {
   period: { windowType: "rolling", durationSeconds: 86400 }, // 1-day rolling window
   expiresAt: EXPIRES_AT,
   createdAt: CREATED_AT,
-  chainId: BASE_SEPOLIA_CHAIN_ID,
+  chainId: TEST_CHAIN_ID,
 };
 
 /** An expired mandate — every MANDATE_EXPIRED test uses this. */
@@ -76,7 +76,7 @@ export const proposalFixture: PaymentProposal = {
   rationale: "Monthly SaaS subscription invoice INV-2025-042 from Supplier A.",
   requestSource: "invoice:INV-2025-042",
   timestamp: CREATED_AT,
-  chainId: BASE_SEPOLIA_CHAIN_ID,
+  chainId: TEST_CHAIN_ID,
 };
 
 /** A proposal to a non-whitelisted address — must always be rejected. */

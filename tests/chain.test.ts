@@ -22,7 +22,12 @@ import { fileURLToPath } from "url";
 
 import { simulateAsExecutor } from "../src/chain/adapter.js";
 import { encodeTransfer } from "../src/chain/roles.js";
-import { APPROVE_SELECTOR, ERC20_ABI, USDC_ADDRESS } from "../src/chain/constants.js";
+import {
+  APPROVE_SELECTOR,
+  DEFAULT_RPC_URL,
+  ERC20_ABI,
+  USDC_ADDRESS,
+} from "../src/chain/constants.js";
 
 // ─── load deployment ───────────────────────────────────────────────────────────
 
@@ -45,10 +50,10 @@ if (existsSync(DEPLOYMENT_PATH)) {
   deployment = JSON.parse(readFileSync(DEPLOYMENT_PATH, "utf-8")) as Deployment;
 }
 
-const RPC_URL = process.env["RPC_URL"] ?? "https://sepolia.base.org";
+const RPC_URL = process.env["RPC_URL"] ?? DEFAULT_RPC_URL;
 
 /** Address that is definitively NOT on the whitelist. */
-const ROGUE_ADDRESS: Address = "0xdEad000000000000000000000000000000000001";
+const ROGUE_ADDRESS: Address = "0xdead000000000000000000000000000000000001";
 
 function sim(innerTo: Address, innerData: Hex) {
   if (!deployment) throw new Error("deployment not loaded");

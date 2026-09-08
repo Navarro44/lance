@@ -20,8 +20,13 @@ export {
   encodeScopeTransfer,
   encodeExecWithRole,
   encodeTransfer,
-  getRolesBytecode,
+  ROLES_MASTERCOPY_VERSION_RANGE,
+  resolveRolesMastercopy,
+  verifyRolesMastercopy,
+  encodeRolesProxyDeployment,
 } from "./roles.js";
+
+export type { MastercopyVerification, ProxyDeployment } from "./roles.js";
 
 export type { AuditSeam, ExecutedPayment } from "./audit-seam.js";
 export { createNullAuditSeam, NullAuditSeam } from "./audit-seam.js";

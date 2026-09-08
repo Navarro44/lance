@@ -1,0 +1,23 @@
+{
+  "network": "Sepolia",
+  "chainId": 11155111,
+  "safeAddress": "0xe88Aeb87FE9Dc5306Ee1D7F9f06eF56bBfE27812",
+  "rolesModifierAddress": "0x439874DfeEAC829d9161c6f535b14Ee4C60136D6",
+  "rolesMastercopy": {
+    "address": "0xf2964ce6161ce0e75964fe7927ce114cb0b283d5",
+    "versionRange": "^2.0.0",
+    "codeHash": "0x471d8b3b419f1eb955230c0326c8812176df49bf3c7b414a563fda5a3c6c10b6",
+    "codeSizeBytes": 24409
+  },
+  "moduleProxyFactory": "0x000000000000aDdB49795b0f9bA5BC298cDda236",
+  "proxySaltNonce": "1788833288494",
+  "signerAddress": "0x6C3d1D0A93A1A9A572310CbF4b54e3d2fE9C42E8",
+  "executorAddress": "0xA045E05B40c7e523F8E6D8f2430dA0c6c97f35da",
+  "whitelist": [
+    "0xD7C592B56A8648db93057B8C25BD2C027D72f79a"
+  ],
+  "perTxCapBaseUnits": "1000000",
+  "usdcAddress": "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
+  "deployedAt": "2026-09-08T02:11:26.764Z",
+  "rolesTxHash": "0x5aca784fb3d6dda90c0fe1ae57f0f650e96fdc2511a0618a01ea7d3edaa967a4"
+}

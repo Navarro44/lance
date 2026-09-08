@@ -25,10 +25,9 @@ import {
   type Hex,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { baseSepolia } from "viem/chains";
 
 import type { PaymentProposal } from "../types/index.js";
-import { CHAIN, USDC_ADDRESS } from "./constants.js";
+import { CHAIN, DEFAULT_RPC_URL, USDC_ADDRESS } from "./constants.js";
 import { encodeExecWithRole, encodeTransfer, EXECUTOR_ROLE_KEY } from "./roles.js";
 import { ERC20_ABI } from "./constants.js";
 import type { AuditSeam } from "./audit-seam.js";
@@ -71,7 +70,7 @@ export type AdapterResult = {
 // ─── factory ──────────────────────────────────────────────────────────────────
 
 export function createChainAdapter(config: AdapterConfig) {
-  const rpcUrl = config.rpcUrl ?? process.env["RPC_URL"] ?? "https://sepolia.base.org";
+  const rpcUrl = config.rpcUrl ?? process.env["RPC_URL"] ?? DEFAULT_RPC_URL;
   const auditSeam = config.auditSeam ?? createNullAuditSeam();
 
   const publicClient = createPublicClient({
@@ -82,7 +81,7 @@ export function createChainAdapter(config: AdapterConfig) {
   const account = privateKeyToAccount(config.executorPrivateKey);
   const walletClient = createWalletClient({
     account,
-    chain: baseSepolia,
+    chain: CHAIN,
     transport: http(rpcUrl),
   });
 
@@ -242,7 +241,7 @@ export async function simulateAsExecutor(opts: {
   innerData: Hex;
   rpcUrl?: string;
 }): Promise<{ success: boolean; revertReason?: string }> {
-  const rpcUrl = opts.rpcUrl ?? process.env["RPC_URL"] ?? "https://sepolia.base.org";
+  const rpcUrl = opts.rpcUrl ?? process.env["RPC_URL"] ?? DEFAULT_RPC_URL;
   const publicClient = createPublicClient({ chain: CHAIN, transport: http(rpcUrl) });
 
   const execCalldata = encodeExecWithRole(opts.innerTo, opts.innerData, false);
